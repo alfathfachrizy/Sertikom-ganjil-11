@@ -1,17 +1,30 @@
-@props(['variant' => 'primary', 'type' => 'button', 'href' => null])
+@props([
+    'variant' => 'primary', // primary | secondary | ghost | danger
+    'size' => 'md', // md | sm
+    'type' => 'button',
+    'href' => null,
+])
 
 @php
-    $classes = match ($variant) {
-        'secondary' => 'bg-sunny-400 text-primary-900 hover:bg-sunny-300',
-        'danger' => 'bg-red-500 text-white hover:bg-red-600',
-        'ghost' => 'bg-transparent text-primary-700 hover:bg-primary-50',
-        default => 'bg-primary-600 text-white hover:bg-primary-700',
+    $baseClasses = 'inline-flex items-center justify-center gap-2 rounded-full font-bold transition duration-150 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+
+    $sizeClasses = match ($size) {
+        'sm' => 'min-h-[40px] px-4 py-2 text-sm',
+        default => 'min-h-[44px] px-6 py-2.5 text-base',
     };
-    $baseClasses = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-center font-bold shadow-md transition focus:outline-none focus:ring-4 focus:ring-primary-200';
+
+    $variantClasses = match ($variant) {
+        'secondary' => 'bg-sunny-400 text-ink hover:bg-sunny-300 shadow-sm',
+        'danger' => 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
+        'ghost' => 'bg-transparent text-primary-700 hover:bg-primary-50 hover:text-primary-900',
+        default => 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm',
+    };
+
+    $allClasses = "{$baseClasses} {$sizeClasses} {$variantClasses}";
 @endphp
 
 @if ($href)
-    <a href="{{ $href }}" {{ $attributes->class([$baseClasses, $classes]) }}>{{ $slot }}</a>
+    <a href="{{ $href }}" {{ $attributes->merge(['class' => $allClasses]) }}>{{ $slot }}</a>
 @else
-    <button type="{{ $type }}" {{ $attributes->class([$baseClasses, $classes]) }}>{{ $slot }}</button>
+    <button type="{{ $type }}" {{ $attributes->merge(['class' => $allClasses]) }}>{{ $slot }}</button>
 @endif

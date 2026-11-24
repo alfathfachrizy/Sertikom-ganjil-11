@@ -38,6 +38,19 @@ export default {
                     600: '#E69500',
                 },
                 cream: '#FFFDF0',
+                ink: {
+                    DEFAULT: '#14301F',
+                    soft: '#4B6355',
+                },
+                line: '#E4EBDD',
+            },
+            boxShadow: {
+                sm: '0 1px 2px 0 rgba(20, 48, 31, 0.05)',
+                md: '0 4px 6px -1px rgba(20, 48, 31, 0.08), 0 2px 4px -2px rgba(20, 48, 31, 0.06)',
+            },
+            borderRadius: {
+                xl: '0.75rem',
+                '2xl': '1rem',
             },
         },
     },

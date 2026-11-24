@@ -1,30 +1,85 @@
 @extends('layouts.public')
 
-@section('title', 'Pembayaran')
+@section('title', 'Pembayaran Pesanan')
 
 @section('content')
-    <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
-        <x-ui.page-header title="Selesaikan Pembayaran" subtitle="Pembayaran aman diproses melalui Midtrans." />
-        <x-ui.card class="mt-8">
-            <div class="flex items-start gap-4">
-                <span class="text-4xl">🧾</span>
-                <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-primary-600">Kode pesanan</p>
-                    <p class="break-all font-display text-xl font-extrabold">{{ $order->order_code }}</p>
-                    <p class="mt-1 text-sm text-primary-700">Tanggal kunjungan {{ $order->visit_date->translatedFormat('d F Y') }}</p>
+    <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        <x-ui.page-header
+            title="Selesaikan Pembayaran"
+            subtitle="Pembayaran diproses secara aman melalui payment gateway Midtrans."
+        />
+
+        {{-- Layout dua kolom: ringkasan di kiri, panel aksi pembayaran di kanan --}}
+        <div class="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+            {{-- Ringkasan Pesanan di Kiri --}}
+            <div class="lg:col-span-7">
+                <div class="rounded-2xl border border-line bg-white p-6 sm:p-8 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-line pb-4">
+                        <div>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-ink-soft">Kode Transaksi</span>
+                            <p class="font-display text-xl font-bold text-ink">{{ $order->order_code }}</p>
+                        </div>
+                        <x-ui.status-badge :status="$order->status" />
+                    </div>
+
+                    <div class="mt-6 space-y-3 text-sm">
+                        <div class="flex justify-between text-ink-soft">
+                            <span>Jenis Pesanan</span>
+                            <span class="font-semibold text-ink">{{ $order->order_type === 'school' ? 'Paket Rombongan Sekolah' : 'Tiket Masuk Reguler' }}</span>
+                        </div>
+                        <div class="flex justify-between text-ink-soft">
+                            <span>Tanggal Kunjungan</span>
+                            <span class="font-semibold text-ink">{{ $order->visit_date->translatedFormat('d F Y') }}</span>
+                        </div>
+                        <div class="flex justify-between text-ink-soft">
+                            <span>Nama Pemesan</span>
+                            <span class="font-semibold text-ink">{{ $order->user->name }}</span>
+                        </div>
+                        <div class="flex justify-between text-ink-soft">
+                            <span>Email Pemesan</span>
+                            <span class="font-semibold text-ink">{{ $order->user->email }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 rounded-xl border border-line bg-cream p-4">
+                        <div class="flex items-baseline justify-between">
+                            <span class="font-bold text-ink">Total Tagihan</span>
+                            <span class="font-display text-2xl font-bold text-primary-700">
+                                Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
-                <x-ui.status-badge :status="$order->status" />
             </div>
-            <div class="mt-6 flex items-center justify-between border-t border-primary-100 pt-5">
-                <span class="font-bold">Total pembayaran</span>
-                <span class="font-display text-3xl font-extrabold text-primary-700">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+
+            {{-- Panel Aksi di Kanan --}}
+            <div class="lg:col-span-5">
+                <div class="rounded-2xl border border-line bg-white p-6 sm:p-8 shadow-sm">
+                    <h3 class="font-display text-lg font-bold text-ink">Instruksi Pembayaran</h3>
+                    <p class="mt-2 text-sm text-ink-soft leading-relaxed">
+                        Klik tombol di bawah untuk membuka jendela pembayaran Midtrans. Anda dapat memilih metode QRIS, transfer bank (VA), atau e-wallet.
+                    </p>
+
+                    <div id="snap-checkout" class="mt-6" data-token="{{ $payment->snap_token }}" data-finish-url="{{ route('payments.finish', $order) }}">
+                        <button
+                            id="snap-pay-button"
+                            type="button"
+                            class="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-primary-600 px-6 py-3 text-base font-bold text-white shadow-sm transition duration-150 ease-in-out hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+                        >
+                            <x-ui.icon name="credit-card" class="size-5" />
+                            <span>Bayar Sekarang</span>
+                        </button>
+                        <p id="snap-message" role="status" class="mt-3 text-center text-sm font-semibold text-red-600"></p>
+                    </div>
+
+                    <div class="mt-6">
+                        <x-ui.info-box variant="sunny">
+                            Mode sandbox (uji coba pembayaran). Tidak ada pemotongan saldo uang sungguhan.
+                        </x-ui.info-box>
+                    </div>
+                </div>
             </div>
-            <div id="snap-checkout" class="mt-7" data-token="{{ $payment->snap_token }}" data-finish-url="{{ route('payments.finish', $order) }}">
-                <button id="snap-pay-button" type="button" class="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary-600 px-6 py-3 font-bold text-white shadow-md transition hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-200">Bayar Sekarang</button>
-                <p id="snap-message" role="status" class="mt-3 text-center text-sm font-semibold text-primary-700"></p>
-            </div>
-            <p class="mt-5 rounded-2xl bg-sunny-50 px-4 py-3 text-center text-sm text-primary-800">Mode uji coba (Sandbox), tidak ada uang sungguhan.</p>
-        </x-ui.card>
+        </div>
     </div>
 @endsection
 

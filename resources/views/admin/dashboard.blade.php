@@ -3,30 +3,50 @@
 @section('title', 'Dashboard Admin')
 
 @section('content')
-    <x-ui.page-header title="Dashboard" subtitle="Ringkasan aktivitas The Nice Park hari ini." />
-    <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <x-ui.page-header
+        title="Ringkasan Operasional"
+        subtitle="Pantau metrik penjualan tiket, reservasi rombongan sekolah, dan arus pendapatan."
+    />
+
+    {{-- 4 Kartu Statistik Seragam: angka besar, label kecil, ikon kecil SVG seragam --}}
+    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ([
-            ['🧾', 'Total Pesanan', number_format($totalOrders, 0, ',', '.'), 'bg-primary-100'],
-            ['🎉', 'Pesanan Lunas', number_format($paidOrders, 0, ',', '.'), 'bg-sunny-100'],
-            ['🏫', 'Pengajuan Menunggu', number_format($pendingSubmissions, 0, ',', '.'), 'bg-orange-100'],
-            ['💰', 'Total Pendapatan', 'Rp '.number_format($totalRevenue, 0, ',', '.'), 'bg-primary-200'],
-        ] as [$emoji, $label, $value, $color])
-            <x-ui.card class="transition hover:-translate-y-1">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-sm font-bold text-primary-700">{{ $label }}</p>
-                        <p class="mt-3 break-words font-display text-2xl font-extrabold text-primary-900">{{ $value }}</p>
+            ['receipt', 'Total Pesanan Masuk', number_format($totalOrders, 0, ',', '.'), 'bg-primary-50 text-primary-700'],
+            ['check-circle', 'Pesanan Telah Lunas', number_format($paidOrders, 0, ',', '.'), 'bg-primary-100 text-primary-800'],
+            ['hourglass', 'Pengajuan Menunggu', number_format($pendingSubmissions, 0, ',', '.'), 'bg-sunny-100 text-ink'],
+            ['credit-card', 'Akumulasi Pendapatan', 'Rp ' . number_format($totalRevenue, 0, ',', '.'), 'bg-primary-50 text-primary-700'],
+        ] as [$icon, $label, $value, $badgeColor])
+            <div class="rounded-2xl border border-line bg-white p-6 shadow-sm">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-ink-soft">{{ $label }}</span>
+                        <p class="font-display text-2xl font-bold text-ink break-words">{{ $value }}</p>
                     </div>
-                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl {{ $color }} text-2xl">{{ $emoji }}</span>
+                    <div class="flex size-10 shrink-0 items-center justify-center rounded-xl {{ $badgeColor }}">
+                        <x-ui.icon :name="$icon" class="size-5" />
+                    </div>
                 </div>
-            </x-ui.card>
+            </div>
         @endforeach
     </div>
-    <div class="mt-8">
-        <h2 class="font-display text-2xl font-extrabold">Akses Cepat</h2>
-        <div class="mt-4 flex flex-wrap gap-3">
-            <x-ui.button :href="route('admin.school-submissions.index')">📝 Tinjau Pengajuan Sekolah</x-ui.button>
-            <x-ui.button variant="secondary" :href="route('admin.orders.index')">🧾 Lihat Pesanan</x-ui.button>
+
+    {{-- Akses Cepat Kelola --}}
+    <div class="mt-10 rounded-2xl border border-line bg-white p-6 shadow-sm">
+        <h2 class="font-display text-lg font-bold text-ink">Akses Cepat Pengelolaan</h2>
+        <p class="mt-1 text-sm text-ink-soft leading-relaxed">Pintasan ke halaman antrean persetujuan dan rekapitulasi data transaksi pelanggan.</p>
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+            <x-ui.button :href="route('admin.school-submissions.index')">
+                <x-ui.icon name="school" class="size-4" />
+                <span>Tinjau Pengajuan Sekolah</span>
+            </x-ui.button>
+            <x-ui.button variant="secondary" :href="route('admin.orders.index')">
+                <x-ui.icon name="receipt" class="size-4" />
+                <span>Lihat Seluruh Pesanan</span>
+            </x-ui.button>
+            <x-ui.button variant="ghost" :href="route('admin.tickets.index')">
+                <x-ui.icon name="ticket" class="size-4" />
+                <span>Kelola Tiket</span>
+            </x-ui.button>
         </div>
     </div>
 @endsection
